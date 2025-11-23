@@ -7,7 +7,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from tiktok_scraper import TikTokScraper
+import asyncio
+from agent_scraper import AgentTikTokScraper
 from datetime import datetime
 
 
@@ -53,7 +54,7 @@ st.markdown("""
 @st.cache_resource
 def get_scraper():
     """Initialize and cache the scraper"""
-    return TikTokScraper()
+    return AgentTikTokScraper()
 
 
 def format_number(num):
@@ -154,6 +155,19 @@ def main():
         ["All UK", "London", "Manchester", "Birmingham", "Edinburgh", "Scotland", "Wales", "Northern Ireland"]
     )
 
+    # AI Agent toggle
+    st.sidebar.subheader("🤖 AI Agent")
+    use_agent = st.sidebar.checkbox(
+        "Use AI Agent for scraping",
+        value=False,
+        help="Enable to use Claude Agent SDK with Brightdata MCP for real-time scraping. Requires ANTHROPIC_API_KEY."
+    )
+
+    if use_agent:
+        st.sidebar.info("🤖 AI Agent enabled - will use Brightdata MCP for real-time scraping")
+    else:
+        st.sidebar.info("📦 Using cached data - toggle AI Agent for real-time scraping")
+
     # Initialize data button
     if st.sidebar.button("🔄 Load Sample Data", help="Load sample UK influencer data for testing"):
         with st.spinner("Loading sample data..."):
@@ -169,12 +183,34 @@ def main():
 
     # Get influencer data
     max_followers_filter = max_followers if max_followers > 0 else None
-    influencers = scraper.search_uk_influencers(
-        keywords=keywords,
-        min_followers=min_followers,
-        max_followers=max_followers_filter,
-        min_engagement_rate=min_engagement
-    )
+
+    # Run search (handle async if using agent)
+    try:
+        if use_agent:
+            with st.spinner("🤖 AI Agent searching for influencers..."):
+                influencers = asyncio.run(
+                    scraper.search_uk_influencers(
+                        keywords=keywords,
+                        min_followers=min_followers,
+                        max_followers=max_followers_filter,
+                        min_engagement_rate=min_engagement,
+                        use_agent=True
+                    )
+                )
+        else:
+            influencers = asyncio.run(
+                scraper.search_uk_influencers(
+                    keywords=keywords,
+                    min_followers=min_followers,
+                    max_followers=max_followers_filter,
+                    min_engagement_rate=min_engagement,
+                    use_agent=False
+                )
+            )
+    except Exception as e:
+        st.error(f"❌ Error searching for influencers: {e}")
+        st.info("💡 Tip: Make sure ANTHROPIC_API_KEY is set if using AI Agent, or use cached data mode.")
+        influencers = []
 
     # Apply location filter
     if location_filter != "All UK":

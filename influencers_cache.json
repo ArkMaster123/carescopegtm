@@ -1,0 +1,72 @@
+[
+  {
+    "username": "ukfitness_guru",
+    "display_name": "Sarah Fitness UK",
+    "followers": 45000,
+    "likes": 1200000,
+    "videos": 234,
+    "engagement_rate": 4.2,
+    "location": "London, UK",
+    "bio": "Fitness coach | Healthy living | UK based",
+    "verified": false,
+    "avg_views": 15000,
+    "profile_url": "https://tiktok.com/@ukfitness_guru",
+    "scraped_at": "2025-11-23T23:37:18.051563"
+  },
+  {
+    "username": "manchesterfoodie",
+    "display_name": "Manchester Food Reviews",
+    "followers": 67000,
+    "likes": 2100000,
+    "videos": 456,
+    "engagement_rate": 5.8,
+    "location": "Manchester, UK",
+    "bio": "Food blogger | Restaurant reviews | Northern England",
+    "verified": true,
+    "avg_views": 28000,
+    "profile_url": "https://tiktok.com/@manchesterfoodie",
+    "scraped_at": "2025-11-23T23:37:18.051581"
+  },
+  {
+    "username": "edinburgh_lifestyle",
+    "display_name": "Emma's Scottish Life",
+    "followers": 32000,
+    "likes": 890000,
+    "videos": 189,
+    "engagement_rate": 3.9,
+    "location": "Edinburgh, UK",
+    "bio": "Lifestyle content | Scotland | Travel & wellness",
+    "verified": false,
+    "avg_views": 12000,
+    "profile_url": "https://tiktok.com/@edinburgh_lifestyle",
+    "scraped_at": "2025-11-23T23:37:18.051584"
+  },
+  {
+    "username": "tech_london",
+    "display_name": "London Tech Reviews",
+    "followers": 89000,
+    "likes": 3400000,
+    "videos": 312,
+    "engagement_rate": 6.1,
+    "location": "London, UK",
+    "bio": "Tech reviews | Gadgets | UK tech scene",
+    "verified": true,
+    "avg_views": 42000,
+    "profile_url": "https://tiktok.com/@tech_london",
+    "scraped_at": "2025-11-23T23:37:18.051586"
+  },
+  {
+    "username": "birmingham_beauty",
+    "display_name": "Beauty by Jasmine",
+    "followers": 54000,
+    "likes": 1800000,
+    "videos": 278,
+    "engagement_rate": 4.7,
+    "location": "Birmingham, UK",
+    "bio": "Makeup artist | Beauty tips | West Midlands",
+    "verified": false,
+    "avg_views": 19000,
+    "profile_url": "https://tiktok.com/@birmingham_beauty",
+    "scraped_at": "2025-11-23T23:37:18.051588"
+  }
+]
