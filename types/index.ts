@@ -27,4 +27,5 @@ export interface Influencer {
   recentGrowth: number; // % in last 30 days
   matchScore: number; // 0-100
   matchReason: string;
+  postCount?: number;
 }

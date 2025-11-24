@@ -1,12 +1,14 @@
-import { generateObject } from 'ai';
+import { streamObject } from 'ai';
 import { z } from 'zod';
 import { model } from '@/lib/ai';
+
+export const maxDuration = 30;
 
 export async function POST(req: Request) {
   try {
     const { description } = await req.json();
 
-    const result = await generateObject({
+    const result = streamObject({
       model,
       schema: z.object({
         name: z.string(),
@@ -24,7 +26,7 @@ export async function POST(req: Request) {
       Return a structured business profile including name, refined description, target customer, industry, keywords, brand tone, and target location/country if mentioned (default to "US" if not specific).`,
     });
 
-    return Response.json(result.object);
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error('Analysis failed:', error);
     return Response.json({ error: 'Failed to analyze business profile' }, { status: 500 });

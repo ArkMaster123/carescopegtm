@@ -1,6 +1,6 @@
 import { Platform } from '@/types';
 
-interface SearchResult {
+export interface SearchResult {
   link: string;
   title: string;
   snippet: string;

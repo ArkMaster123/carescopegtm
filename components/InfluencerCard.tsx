@@ -36,6 +36,7 @@ export function InfluencerCard({ influencer, isSelected, onSelect, onViewDetails
           src={influencer.profileImageUrl} 
           alt={influencer.displayName}
           className="w-full h-full object-cover"
+          referrerPolicy="no-referrer"
         />
         <div className="absolute top-3 right-3">
           <Badge 
@@ -76,12 +77,12 @@ export function InfluencerCard({ influencer, isSelected, onSelect, onViewDetails
             <p className="font-bold text-zinc-900">{formatNumber(influencer.followerCount)}</p>
           </div>
           <div className="bg-zinc-50 rounded-lg p-2">
-            <p className="text-xs text-zinc-500 uppercase font-bold tracking-wider">Eng. Rate</p>
-            <p className="font-bold text-zinc-900">{influencer.engagementRate}%</p>
+            <p className="text-xs text-zinc-500 uppercase font-bold tracking-wider">Avg Likes</p>
+            <p className="font-bold text-zinc-900">{formatNumber(influencer.avgLikes)}</p>
           </div>
           <div className="bg-zinc-50 rounded-lg p-2">
-            <p className="text-xs text-zinc-500 uppercase font-bold tracking-wider">Growth</p>
-            <p className="font-bold text-green-600">+{influencer.recentGrowth}%</p>
+            <p className="text-xs text-zinc-500 uppercase font-bold tracking-wider">Posts</p>
+            <p className="font-bold text-zinc-900">{influencer.postCount !== undefined ? formatNumber(influencer.postCount) : '-'}</p>
           </div>
         </div>
       </CardContent>

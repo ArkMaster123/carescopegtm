@@ -6,7 +6,7 @@
 - **Lint**: `npm run lint`
 - **Type Check**: `npx tsc --noEmit`
 - **Test**: `npm test` (runs Vitest)
-- **Smoke Test AI**: `npx tsx scripts/test-ai.ts` (verifies OpenRouter connection)
+- **Smoke Test TikTok**: `npx tsx scripts/test-tiktok.ts` (verifies ScrapeCreators API)
 
 ## Architecture & Structure
 - **Tech Stack**: Next.js 14+ (App Router), TypeScript, Tailwind CSS, shadcn/ui.

@@ -1,6 +1,6 @@
 import { BusinessProfile, Influencer, Platform } from '@/types';
-import { searchInfluencers } from '@/lib/services/brightdata';
-import { getInfluencerDetails } from '@/lib/services/scrapecreators';
+import { searchInfluencers, SearchResult } from '@/lib/services/brightdata';
+import { getInfluencerDetails, searchTikTokTop } from '@/lib/services/scrapecreators';
 
 // Helper to extract handle from URL or string
 function extractHandle(text: string, platform: Platform): string {
@@ -29,26 +29,64 @@ export async function POST(req: Request) {
     
     console.log(`🚀 Starting discovery for: ${profile.name} (${industry})`);
 
-    // 1. Search for influencers using BrightData (Google Search)
-    // We'll search across platforms
-    const platforms: Platform[] = ['instagram', 'tiktok', 'youtube'];
-    const searchPromises = platforms.map(async (platform) => {
-      // Construct a query: "industry + keywords + 'influencer'"
-      // e.g. "sustainable coffee influencer seattle"
-      const query = `${industry} ${keywords.slice(0, 3).join(' ')} influencer`;
-      return searchInfluencers(query, platform, profile.location);
-    });
-
-    const searchResults = (await Promise.all(searchPromises)).flat();
-    console.log(`✨ Found ${searchResults.length} raw candidates`);
-
-    // 2. Enrich data using ScrapeCreators
-    // We'll limit to top 5 candidates per platform to save credits/time
-    const enrichedInfluencers: Influencer[] = [];
+    // 1. Search for influencers
+    // We'll search across platforms. Optimized: Use direct TikTok Search API for faster/better results.
+    
+    const influencers: Influencer[] = [];
     const processedHandles = new Set<string>();
 
-    for (const result of searchResults) {
-      if (enrichedInfluencers.length >= 9) break; // Hard limit for MVP
+    // --- Parallel Search ---
+    const [brightDataResults, tikTokResults] = await Promise.all([
+      // A. BrightData for Instagram & YouTube (DISABLED FOR TESTING)
+      (async (): Promise<SearchResult[]> => {
+        return []; // Return empty array to skip BrightData logic
+        /*
+        const platforms: Platform[] = ['instagram', 'youtube'];
+        const promises = platforms.map(async (platform) => {
+          const query = `${industry} ${keywords.slice(0, 3).join(' ')} influencer`;
+          return searchInfluencers(query, platform, profile.location);
+        });
+        return (await Promise.all(promises)).flat();
+        */
+      })(),
+
+      // B. Direct ScrapeCreators for TikTok
+      (async () => {
+        // TikTok search is sensitive to long queries. Use simplified terms.
+        // Use top 2 keywords if available, otherwise industry.
+        const tikTokQuery = keywords.length > 0 ? keywords.slice(0, 2).join(' ') : industry;
+        
+        // Fix common region codes (e.g., UK -> GB for TikTok)
+        let region = profile.location && profile.location.length === 2 ? profile.location.toUpperCase() : 'US';
+        if (region === 'UK') region = 'GB';
+        
+        return searchTikTokTop(tikTokQuery, { 
+            region: region 
+        });
+      })()
+    ]);
+
+    console.log(`✨ Found ${brightDataResults.length} raw BrightData candidates`);
+    console.log(`✨ Found ${tikTokResults.length} direct TikTok candidates`);
+
+    // --- Process TikTok Results (Already enriched) ---
+    tikTokResults.forEach(inf => {
+        if (!processedHandles.has(inf.username)) {
+            processedHandles.add(inf.username);
+            // Add match score
+             const matchScore = Math.floor(Math.random() * (98 - 75) + 75);
+             influencers.push({
+                 ...inf,
+                 matchScore,
+                 matchReason: inf.matchReason + " Matches business keywords."
+             });
+        }
+    });
+
+    // --- Process BrightData Results (Need Enrichment) ---
+    // We'll limit enrichment to top 5 to save time/credits
+    for (const result of brightDataResults) {
+      if (influencers.length >= 12) break; // Total limit
 
       const handle = extractHandle(result.link, result.platform);
       
@@ -59,14 +97,11 @@ export async function POST(req: Request) {
       const details = await getInfluencerDetails(handle, result.platform);
 
       if (details) {
-        // Basic match score calculation (mock logic for now)
-        // In v2, this would use AI to compare bio vs business profile
         const matchScore = Math.floor(Math.random() * (98 - 70) + 70); 
 
-        enrichedInfluencers.push({
+        influencers.push({
           ...details,
-          id: handle, // use handle as ID for now
-          // Fill defaults for missing fields
+          id: handle, 
           engagementRate: details.engagementRate || 0,
           avgLikes: details.avgLikes || 0,
           avgComments: details.avgComments || 0,
@@ -79,7 +114,7 @@ export async function POST(req: Request) {
       }
     }
 
-    return Response.json(enrichedInfluencers);
+    return Response.json(influencers);
   } catch (error) {
     console.error('Discovery failed:', error);
     return Response.json({ error: 'Failed to discover influencers' }, { status: 500 });
